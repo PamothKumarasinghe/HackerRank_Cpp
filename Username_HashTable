@@ -1,0 +1,107 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct Node {
+    Node* Next;
+    string username, password;
+
+    Node(string username, string password) {
+        this->username = username;
+        this->password = password;
+        Next = nullptr;
+    }
+};
+
+class UserHash {
+    vector<Node*> table;
+    int size;
+    public:
+
+    public:
+    UserHash(int size) {
+        this->size = size;
+        table.resize(size, nullptr);
+    }
+
+    int hashFunction(string key) {
+        int sum = 0;
+        for (char c : key) { 
+            sum += c;       // sum of ASCII values of all characters in the string || you can use (int) c instead of c
+        }
+        return sum % size;
+    }
+
+    void insertTable(string username, string password) {
+        int index = hashFunction(username);
+
+        if (table[index] == nullptr) {
+            table[index] = new Node(username, password); //Creating a node to store the username and password @ index
+            return;
+        }
+        Node* temp = table[index];
+        while (temp->Next != nullptr) {
+            temp = temp->Next;
+        }
+        temp->Next = new Node(username, password);
+    }
+
+    bool search(string key) {
+        int index = hashFunction(key);
+        Node* temp = table[index];
+        while (temp) {
+            if (temp->username == key) return true;
+            temp = temp->Next;
+        }
+        return false;
+    }
+
+    void deleteProfile(string key) {
+        int index = hashFunction(key);
+        Node* temp = table[index];
+
+        if (temp->username == key) { // Checks if the head of the Bucket is equals to the username to delete
+            table[index] = temp->Next;
+            delete temp;
+            return;
+        }
+        while (temp->Next != nullptr) {
+            if (temp->Next->username == key) {
+                Node* toDelete = temp->Next;
+                temp->Next = temp->Next->Next;
+                delete toDelete;
+                return;
+            }
+            temp = temp->Next;
+        }
+        cout << "Username not found" << endl;
+        return;
+    }
+
+    void print() {
+        for (int i = 0; i < size; i++) {
+            Node* temp = table[i];
+            while (temp) {
+                cout << temp->username << " --> " << temp->password << endl; 
+                temp = temp->Next;
+            }
+        }
+    }
+};
+
+
+
+int main() {
+    string u, p;
+    UserHash ht(10);
+
+    while (cin >> u >> p && u != "-1"){
+        ht.insertTable(u, p);
+    }
+
+    ht.print();
+
+    //searching for a username, deleting a username is also possible
+
+    return 0;
+}
