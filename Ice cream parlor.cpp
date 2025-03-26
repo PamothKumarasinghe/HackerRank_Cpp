@@ -16,7 +16,7 @@ vector<string> split(const string &);
  */
 
 vector<int> icecreamParlor(int m, vector<int> arr) {
-    map<int, int> dic;
+    map<int, int> dic; //map to store the element & index of the element
     for (int i = 0; i < arr.size(); i++) {
         int flav = m - arr[i];
         
@@ -25,9 +25,9 @@ vector<int> icecreamParlor(int m, vector<int> arr) {
         // returns 0 if 'flav' doesnt exists in dic as a key
         //good way to find a key in a map
         
-        dic[arr[i]] = i + 1;                  
+        dic[arr[i]] = i + 1; //If the key is not found, it inserts the key with the given value           
     }
-    return {};
+    return {}; //return empty vector if no solution is found
 }
 
 int main()
