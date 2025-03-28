@@ -1,0 +1,139 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+string ltrim(const string &);
+string rtrim(const string &);
+
+/*
+ * Complete the 'twoStrings' function below.
+ *
+ * The function is expected to return a STRING.
+ * The function accepts following parameters:
+ *  1. STRING s1
+ *  2. STRING s2
+ */
+ 
+ //----------------------------------Logic------------------------------//
+ /*
+  *Implemented hashTable to solve this
+  *Create a hashtable -> size = maximum size(between s1 && s2) - But I think this is unnecassary (either s1 || s2 length fits)
+  *Then add each of the charactors in s1 to the hashtable (used hashfunction to get the right bucket)
+  *Then iterate through the s2 (c), and using index from hashfunction, access to the corresponding bucket
+  *Then iterate through the LinkedList in that bucket and search for the specific 'c' that we search for
+  *If it founds, returns true. else return false
+  *Since the substring even can be single charactor this implementation has no error
+  *But if the subtring cannot be one length(more than one) this implementation may cause error
+  */
+ 
+struct Node {
+    char val;
+    Node* next;
+    
+    Node(char val) {
+        this->val = val;
+        next = nullptr;
+    }
+};
+
+class HashTable {
+    vector<Node*> table;
+    int size;
+    
+    public:
+        HashTable(int size) {
+            this->size = size;
+            table.resize(size, nullptr);
+        }
+        
+        int hashFunc(char c) {
+            int hash = (int) c;
+            
+            return hash % size;
+        }
+        
+        void insertTable(char c) {
+            int index = hashFunc(c);
+        
+            if (table[index] == nullptr) {
+                table[index] = new Node(c);
+                return;
+            }
+            Node* temp = table[index];
+            while (temp->next != nullptr) {
+                temp = temp->next;
+            }
+            temp->next = new Node(c);
+        }
+        
+        bool searchTable(char c) {
+            int index = hashFunc(c);
+            
+            Node* temp = table[index];
+            while (temp) {
+                if (temp->val == c) return true;
+                temp = temp->next;
+            }
+            return false;
+        }
+};
+
+
+string twoStrings(string s1, string s2) {
+    int a = s1.length(), b = s2.length();
+    int maxLen = max( a, b);
+    
+    HashTable ht(maxLen);
+    
+    for (char c : s1) {
+        ht.insertTable(c);
+    }
+    for (char c : s2) {
+        if (ht.searchTable(c)) return "YES";
+    }
+    return "NO";
+}
+
+int main()
+{
+    string q_temp;
+    getline(cin, q_temp);
+
+    int q = stoi(ltrim(rtrim(q_temp)));
+
+    for (int q_itr = 0; q_itr < q; q_itr++) {
+        string s1;
+        getline(cin, s1);
+
+        string s2;
+        getline(cin, s2);
+
+        string result = twoStrings(s1, s2);
+
+        cout << result << "\n";
+    }
+
+    return 0;
+}
+
+string ltrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        s.begin(),
+        find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace)))
+    );
+
+    return s;
+}
+
+string rtrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(),
+        s.end()
+    );
+
+    return s;
+}
