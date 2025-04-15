@@ -1,0 +1,96 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_map>
+
+using namespace std;
+
+class Node {
+    public:
+        int val;
+        vector<Node*> neighbours;
+
+        Node() {
+            val = 0;
+            neighbours = vector<Node*>();
+        }
+        Node(int val) {
+            this->val = val;
+            neighbours = vector<Node*>();
+        }
+        Node(int val, vector<Node*> neighbours) {
+            this->val = val;
+            this->neighbours = neighbours;
+        }
+};
+
+Node* cloneGraph(Node* node) {
+    if (node == nullptr) return nullptr;
+    //use an Unordered_map to store the cloned nodes
+    unordered_map<Node*, Node*> temp; // ******* <key: original node, value: cloned node> *******//
+    queue<Node*> q;
+    q.push(node);
+
+    temp[node] = new Node(node->val); //cloning the first node, the value is the value of the cloned node (node->val), and the neighbours are empty for now
+
+    while (!q.empty()) {
+        Node* curr = q.front();
+        q.pop();
+
+        for (Node* neighbor : curr->neighbours) {
+            // Let's check the neighbor node has already checked/ visited or not, (visiting and checking do the same thing here)
+            if (temp.find(neighbor) == temp.end()) { // unorderedMaps hv this special way of finding, if it is not found, then it'll return
+                                                     // an iterator to the end of the map.
+                
+                temp[neighbor] = new Node(neighbor->val);
+                q.push(neighbor);
+            }
+            // Now we can add the neighbour to the cloned node's neighbours
+            temp[curr]->neighbours.push_back(temp[neighbor]);
+        }
+    }
+    return temp[node];
+}
+
+void printGraph(Node* node) {
+    if (node == nullptr) return;
+    cout << "Node " << node->val << ": ";
+    for (Node* neighbour : node->neighbours) {
+        cout << neighbour->val << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    Node* node1 = new Node(1);
+    Node* node2 = new Node(2);
+    Node* node3 = new Node(3);
+    Node* node4 = new Node(4);
+
+    node1->neighbours.push_back(node2);
+    node1->neighbours.push_back(node4);
+
+    node2->neighbours.push_back(node1);
+    node2->neighbours.push_back(node3);
+
+    node3->neighbours.push_back(node2);
+    node3->neighbours.push_back(node4);
+
+    node4->neighbours.push_back(node1);
+    node4->neighbours.push_back(node3);
+
+    Node* node = node1;
+
+    // for cloning case //
+    // Only the node1 is given as input, and we hv to clone the entire  graph
+    // and return the pointer to the node 1 of the cloned graph.
+
+    Node* cloned = cloneGraph(node);
+    cout << "Original Graph:\n";
+    printGraph(node);
+    printGraph(node2);
+
+    cout << "\nCloned Graph:\n";
+    printGraph(cloned);
+    printGraph(node2);
+}
