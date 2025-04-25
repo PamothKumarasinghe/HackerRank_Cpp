@@ -1,0 +1,185 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+string ltrim(const string &);
+string rtrim(const string &);
+vector<string> split(const string &);
+
+/*
+ * Complete the 'bfs' function below.
+ *
+ * The function is expected to return an INTEGER_ARRAY.
+ * The function accepts following parameters:
+ *  1. INTEGER n
+ *  2. INTEGER m
+ *  3. 2D_INTEGER_ARRAY edges
+ *  4. INTEGER s
+ */
+
+/* My Algorithm
+ * initialize an array to store the depths of the each node with the length of the No. of nodes
+ * initialize the array with (-1), so that if there' re any node that is unreachable, it'll return (-1) as required.
+ * Take the starting point - depth of the starting point is always 0
+ * select a node, add its node and depth to the queue.
+ * iterate among the adjacense of the selected node
+ * add the depths of the adjacense to the arr - (depth + 1 since arr is initialized the -1)
+ * when all nodes are visited, return the corresponding vector.
+ * */
+
+class Graph {
+    int V;
+    vector<list<int>> adj; //to store the graph-adjacense
+    vector<int> arr; // to store the depths of each node
+    
+    public:
+        Graph(int V) {
+            this->V = V;
+            adj.resize(V);
+            arr.resize(V, -1); // since unreachable nodes will never be able to put hands on arr, they' re already initialized to (-1)
+        }
+        
+        /* Creating the graph */
+        void addEdge(int u, int v) {
+            adj[u - 1].push_back(v - 1); // u ---> v
+            adj[v - 1].push_back(u - 1); // v ---> u
+        }
+        
+        /* BFS traversal method */
+        void BFS(int start) {
+            vector<bool> visited(V, false);
+            queue<pair<int, int>> q; // node & depth
+            visited[start] = true;
+            q.push({start, 0}); // node & depth
+            
+            while (!q.empty()) {
+                int node = q.front().first, depth = q.front().second;
+                
+                arr[node] += (depth + 1); // +1 bcoz arr is (-1)
+                q.pop();
+                
+                for (int neighbour : adj[node]) {
+                    if (!visited[neighbour]) {
+                        visited[neighbour] = true;
+                        q.push({neighbour, depth + 6}); // +6 bcoz an edge is 6 weighted
+                    }
+                }
+            }
+        }
+        
+        /* Getter method to get the final result */
+        vector<int> getArr(int s) {
+            vector<int> lst;
+            for (int i = 0; i < V; i++) {
+                if (i != s) lst.push_back(arr[i]); // starting node doesn't matter
+            }
+            
+            return lst;
+        }
+};
+
+vector<int> bfs(int n, int m, vector<vector<int>> edges, int s) {
+    Graph g(n);
+    
+    // creating the graph
+    for (vector<int> pair : edges) {
+        g.addEdge(pair[0], pair[1]);
+    }
+    
+    g.BFS(s - 1);
+    return g.getArr(s - 1);
+}
+
+int main()
+{
+    string q_temp;
+    getline(cin, q_temp);
+
+    int q = stoi(ltrim(rtrim(q_temp)));
+
+    for (int q_itr = 0; q_itr < q; q_itr++) {
+        string first_multiple_input_temp;
+        getline(cin, first_multiple_input_temp);
+
+        vector<string> first_multiple_input = split(rtrim(first_multiple_input_temp));
+
+        int n = stoi(first_multiple_input[0]);
+
+        int m = stoi(first_multiple_input[1]);
+
+        vector<vector<int>> edges(m);
+
+        for (int i = 0; i < m; i++) {
+            edges[i].resize(2);
+
+            string edges_row_temp_temp;
+            getline(cin, edges_row_temp_temp);
+
+            vector<string> edges_row_temp = split(rtrim(edges_row_temp_temp));
+
+            for (int j = 0; j < 2; j++) {
+                int edges_row_item = stoi(edges_row_temp[j]);
+
+                edges[i][j] = edges_row_item;
+            }
+        }
+
+        string s_temp;
+        getline(cin, s_temp);
+
+        int s = stoi(ltrim(rtrim(s_temp)));
+
+        vector<int> result = bfs(n, m, edges, s);
+
+        for (size_t i = 0; i < result.size(); i++) {
+            cout << result[i];
+
+            if (i != result.size() - 1) {
+                cout << " ";
+            }
+        }
+
+        cout << "\n";
+    }
+
+    return 0;
+}
+
+string ltrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        s.begin(),
+        find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace)))
+    );
+
+    return s;
+}
+
+string rtrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(),
+        s.end()
+    );
+
+    return s;
+}
+
+vector<string> split(const string &str) {
+    vector<string> tokens;
+
+    string::size_type start = 0;
+    string::size_type end = 0;
+
+    while ((end = str.find(" ", start)) != string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+
+        start = end + 1;
+    }
+
+    tokens.push_back(str.substr(start));
+
+    return tokens;
+}
