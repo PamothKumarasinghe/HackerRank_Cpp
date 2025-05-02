@@ -1,0 +1,71 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+
+
+class Graph {
+    vector<vector<vector<int>>> adj;
+    int V;
+
+    public:
+        Graph(int V) {
+            this->V = V;
+            adj.resize(V);
+        }
+        
+        void addEdge(int u, int v, int w) {
+            // 0 based index
+            // u = u - 1; v = v - 1; //uncomment if using 1 based index
+            adj[u].push_back({w, v});  //assume that this is a directed weighted graph
+        }
+
+        vector<vector<vector<int>>> getAdj() const { //returning an address to the adj,less memory copy, and make sure to use const so it wont be modified
+            return adj;
+        }
+};
+
+vector<int> dijkstra(vector<vector<vector<int>>>& adj, int start, int V) {
+    vector<int> dist(V, INT_MAX);
+    dist[start] = 0;
+    priority_queue<vector<int>, vector<vector<int>>, greater<vector<int>>> pq; //min heap
+    // this pq--> <vector<int> = {dist, node} - this is the type of elements stoted in the pq
+    //vector<vector<int>> the data structure used to store the elements inside the pq
+    //greater<vector<int>> comparator - normally pq is a max heap, but we want a min heap, so we use a comparator which compares the first element of vector<int> an sorts
+
+    pq.push({0, start});
+
+    while (!pq.empty()) {
+        int u = pq.top()[1]; // get the node with the minimum distance - cant use second since not a pair
+        pq.pop(); //pop the top
+
+        for (auto& edge : adj[u]) {
+            int  w = edge[0], v = edge[1];
+
+            if (dist[u] != INT_MAX && dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+    return dist;
+}
+
+int main() {
+    Graph g(5);
+    vector<vector<int>> edges = {{0, 1, 4}, {0, 2, 8}, {1, 4, 6}, 
+                                 {2, 3, 2}, {3, 4, 10}};
+    for (vector<int>& edge : edges) {
+        g.addEdge(edge[0], edge[1], edge[2]);
+    }
+    vector<vector<vector<int>>> adjRef = g.getAdj(); //address of adj
+    vector<int> dist = dijkstra(adjRef, 0, 5); 
+
+    for (int i : dist) {
+        cout << i << " ";
+    }
+
+
+}
+
